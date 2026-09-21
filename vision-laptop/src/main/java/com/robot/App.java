@@ -17,31 +17,27 @@ public class App {
             return;
         }
 
-        System.out.println("Cámara iniciada correctamente.");
-
         ColorDetector detector = new ColorDetector();
         OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
 
-        CanvasFrame windowOriginal = new CanvasFrame("Webcam Original", CanvasFrame.getDefaultGamma() / 2.2);
-        CanvasFrame windowProcesada = new CanvasFrame("Webcam Escala de Grises", CanvasFrame.getDefaultGamma() / 2.2);
-
+        CanvasFrame windowOriginal = new CanvasFrame("Webcam - Rastreador de Objetos", CanvasFrame.getDefaultGamma() / 2.2);
         windowOriginal.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        windowProcesada.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         Mat frame = new Mat();
 
         while (windowOriginal.isVisible() && cameraService.readFrame(frame)) {
             if (frame.empty()) continue;
 
-            Mat grayFrame = detector.convertToGrayscale(frame);
+            // Procesar el cuadro para rastrear el objeto
+            Mat trackedFrame = detector.trackColor(frame);
 
-            windowOriginal.showImage(converter.convert(frame));
-            windowProcesada.showImage(converter.convert(grayFrame));
+            // Mostrar frame con el cuadro verde dibujado
+            windowOriginal.showImage(converter.convert(trackedFrame));
         }
 
         cameraService.release();
+        converter.close();
         windowOriginal.dispose();
-        windowProcesada.dispose();
         System.out.println("Programa finalizado.");
     }
 }
